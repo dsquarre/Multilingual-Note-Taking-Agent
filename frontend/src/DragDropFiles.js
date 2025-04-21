@@ -25,7 +25,7 @@ const DragDropFiles = () => {
         const formData = new FormData();
         formData.append("file",files);
         try {
-        const endpoint = "http://localhost:8000/upload/"
+        const endpoint = "/upload/"
         const response = await fetch(endpoint,{
             method: "POST",
             body: formData
@@ -39,7 +39,7 @@ const DragDropFiles = () => {
         };
         const gettext = async () => {
                 try {
-                  const response = await fetch('http://localhost:8000/result/highlights/');
+                  const response = await fetch('/result/highlights/');
                   const data = await response.text(); // use .text() because it's plain text
                   setText(data);
                 } catch (error) {

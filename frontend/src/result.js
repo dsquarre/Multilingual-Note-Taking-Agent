@@ -3,7 +3,7 @@
 
 const pdf = (flag) => {
     if(flag === 0){
-        fetch("http://localhost:8000/result/summary")
+        fetch("/result/summary")
         .then(response => {
             response.blob().then(blob => {
                 let url = window.URL.createObjectURL(blob);
@@ -18,13 +18,13 @@ const pdf = (flag) => {
     });
 }
     else {
-        fetch("http://localhost:8000/result/transcript")
+        fetch("/result/transcript")
         .then(response => {
             response.blob().then(blob => {
                 let url = window.URL.createObjectURL(blob);
                 let a = document.createElement('a');
                 a.href = url;
-                a.download = "transcript.pdf";
+                a.download = "transcript.txt";
 
                 a.click();
                 a.remove();

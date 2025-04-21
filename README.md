@@ -1,15 +1,15 @@
 # Multilingual Meeting Transcription  
 **Author: Danish Dubey**
 
-This project transcribes multilingual meeting audio using a combination of FastAPI (backend) and React (frontend). It supports Cantonese and English (You can manually add support for other languages by changing the font used for fpdf), and is optimized for Linux-based systems.
+This project transcribes multilingual meeting audio using a combination of FastAPI (backend) and React (frontend), and is optimized for Linux-based systems.
 
 ---
 
 ## 🛠 Tech Stack
 
 - **Frontend**: React (Node.js & npm)
-- **Backend**: FastAPI (Python), with CORS middleware
-
+- **Backend**: FastAPI (Python), with CORS middleware (not needed since react app build is run using fastapi)
+- **fastapi_app**: React app build served using FASTAPI(python)
 ---
 
 ## ⚙️ Setup (Linux-based)
@@ -27,23 +27,13 @@ sudo apt-get install python3-pip ffmpeg fonts-noto-core
 pip install virtualenv
 virtualenv venv
 source venv/bin/activate
-pip install -r backend/requirements.txt
+pip install -r fastapi_app/requirements.txt
 ```
 
-### 3. **Frontend setup**
+### 4. **fastapi_app setup**
 
 ```bash
-cd frontend
-npm install
-npm start
-```
-
-> ⚠️ Note: The frontend is not served with FastAPI. Run it separately using the steps above.
-
-### 4. **Backend setup**
-
-```bash
-cd backend
+cd fastapi_app
 python main.py
 ```
 

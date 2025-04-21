@@ -137,14 +137,8 @@ async def getAudio(file: UploadFile):
             transcript = transcript+f"{timestamp}-{segment.text}\n"
     for path in chunks:
         os.remove(path)
-    transcribe = FPDF()
-    transcribe.add_font('NotoSansTC', '', '/usr/share/fonts/truetype/noto/NotoSansTC-Regular.ttf', uni=True)
-    transcribe.set_font('NotoSansTC', '', 10)
-    transcribe.add_page()
-    transcribe.multi_cell(0, 10, f"{transcript}")
-    transcribe.output(UPLOAD_DIR / "transcript.pdf")
-
-    
+    with open("transcript.txt","w") as f:
+        f.write(transcript)
     
     summary_resp, highlight_resp = await asyncio.gather(
     get_summary(text),
@@ -182,8 +176,8 @@ async def give():
 @app.get("/result/transcript")
 async def give():
     global UPLOAD_DIR
-    path = UPLOAD_DIR / "transcript.pdf"
-    return FileResponse(path=path, filename="transcript.pdf", media_type='application/pdf')
+    path = UPLOAD_DIR / "transcript.txt"
+    return FileResponse(path=path, filename="transcript.txt", media_type='text/plain')
 
 
 @app.get("/result/highlights")
