@@ -46,7 +46,7 @@ async def startup_event():
     model = WhisperModel("tiny", device="cpu", compute_type="int8", local_files_only=False)
     
     # Configure Gemini API (replace with your API key)
-    genai.configure(api_key="AIzaSyBDYZL3Bxqfz50K2PJLg6qol0Y86RHmJzE")
+    genai.configure(api_key="")
     gemini_model = genai.GenerativeModel('gemini-1.5-flash') #gemini model for your api key
 
 def transcribe(file):
