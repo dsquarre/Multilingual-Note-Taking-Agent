@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-multipart
+pathlib
+triton==3.2.0
+faster-whisper
+-q -U google-generativeai
+fpdf
+google.generativeai
+pydub
+pyannote.audio
