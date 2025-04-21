@@ -36,7 +36,7 @@ async def startup_event():
     model = WhisperModel("tiny", device="cpu", compute_type="int8", local_files_only=False)
     
     # Configure Gemini API (replace with your API key)
-    genai.configure(api_key="AIzaSyBDYZL3Bxqfz50K2PJLg6qol0Y86RHmJzE")
+    genai.configure(api_key="API_KEY_HERE")
     gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 
 def transcribe(file):
@@ -56,9 +56,7 @@ async def transcribe_chunk(file):
 
 def split_audio(file):
     """  from pyannote.audio import Pipeline
-    pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token="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") #only read access
-
-    #pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token= "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")
+    pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization", use_auth_token="AUTH_TOKEN_HERE") #only read access
     diarization = pipeline(file) 
     i = 0
     for turn,_,speaker in diarization.itertracks(yield_label=True):

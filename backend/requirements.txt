@@ -9,3 +9,4 @@ fpdf
 google.generativeai
 pydub
 pyannote.audio
+ffmpeg
