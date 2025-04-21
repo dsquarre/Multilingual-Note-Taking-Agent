@@ -4,7 +4,7 @@ if __name__ == "__main__":
     uvicorn.run("main:app",host="0.0.0.0",port=8000,reload=True)
 
 
-from fastapi import FastAPI,File, UploadFile
+from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from pathlib import Path
@@ -38,26 +38,23 @@ app.add_middleware(
 @app.on_event("startup")  
 async def startup_event():
     global gemini_model,model
+    #select base or small for better transcription
     model = WhisperModel("tiny", device="cpu", compute_type="int8", local_files_only=False)
     
     # Configure Gemini API (replace with your API key)
     genai.configure(api_key="")
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash')
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash') #gemini model for your api key
 
 def transcribe(file):
     global model
     segments, _ = model.transcribe(file)
     return segments
-    
 
 async def transcribe_chunk(file):
-    try:
-        loop = asyncio.get_running_loop()
-        transcript = await loop.run_in_executor(None,transcribe,file)
-        return transcript
-    except Exception as e:
-        os.system(f"echo Error from Whisper while transcribing file {file}: {str(e)}")
-        return None
+    loop = asyncio.get_running_loop()
+    transcript = await loop.run_in_executor(None,transcribe,file)
+    return transcript
+    
 
 def split_audio(file):
     """  from pyannote.audio import Pipeline
@@ -73,10 +70,10 @@ def split_audio(file):
     return chunks """
     audio=AudioSegment.from_file(file)
     chunks = []
-    chunk_length = 3*60*1000
+    chunk_length = 4*60*1000
     for i, start in enumerate(range(0,len(audio),chunk_length)):
          chunk = audio[start:start +chunk_length] 
-         out_path = f"./chunk_{i}.mp3"
+         out_path = f"chunk_{i}.mp3"
          chunk.export(out_path,format="mp3",bitrate= "48k")
          chunks.append(out_path)
     return chunks.copy()
@@ -99,7 +96,7 @@ async def get_highlights(transcript):
     return await gemini_model.generate_content_async(prompt)
 
 @app.post("/upload/")
-async def getAudio(file: UploadFile = File(...)):
+async def getAudio(file: UploadFile):
     global model, highlight, UPLOAD_DIR, gemini_model
     audio = await file.read()
     save_to = UPLOAD_DIR / f"{file.filename}"
@@ -108,15 +105,10 @@ async def getAudio(file: UploadFile = File(...)):
         f.write(audio)
     os.system(f"ffmpeg -i '{save_to}' -vn -ar 16000 -ac 1 -b:a 48k input.mp3 -y")
     os.remove(save_to)
-    inputfile = "./input.mp3"
+    inputfile = "input.mp3"
     # Transcribe audio
     chunks = split_audio(inputfile)
     transcriptions = await asyncio.gather(*[transcribe_chunk(file) for file in chunks])
-    for transcription in transcriptions:
-        if transcription is None:
-            print("One or more chunks failed to transcribe")
-    for path in chunks:
-        os.remove(path)
 
     text = ""
     transcript = ""
@@ -139,13 +131,16 @@ async def getAudio(file: UploadFile = File(...)):
             sec = (min - (int)(min))*60
             timestamp =timestamp +" : "+ f"{(int)(hour)}"+"."+f"{(int)(min)}"+"."+f"{(int)(sec)}"
             transcript = transcript+f"{timestamp}-{segment.text}\n"
-
+    for path in chunks:
+        os.remove(path)
     transcribe = FPDF()
-    transcribe.add_font('NotoSans', '', '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf', uni=True)
-    transcribe.set_font('NotoSans', '', 10)
+    transcribe.add_font('NotoSansTC', '', '/usr/share/fonts/truetype/noto/NotoSansTC-Regular.ttf', uni=True)
+    transcribe.set_font('NotoSansTC', '', 10)
     transcribe.add_page()
     transcribe.multi_cell(0, 10, f"{transcript}")
     transcribe.output(UPLOAD_DIR / "transcript.pdf")
+
+    
     
     summary_resp, highlight_resp = await asyncio.gather(
     get_summary(text),
@@ -167,7 +162,7 @@ async def getAudio(file: UploadFile = File(...)):
     # save summary into pdf
     summarize.multi_cell(0, 10, f"{summary}")
     summarize.output(outputfile)
-    
+
     
     # Clean up
     os.remove(inputfile)
