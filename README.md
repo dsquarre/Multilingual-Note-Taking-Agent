@@ -1,7 +1,3 @@
-Your README has solid content, but a few tweaks will make it clearer and more professional. Here's a polished version:
-
----
-
 # Multilingual Meeting Transcription  
 **Author: Danish Dubey**
 
