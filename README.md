@@ -1,70 +1,92 @@
-# Getting Started with Create React App
+Your README has solid content, but a few tweaks will make it clearer and more professional. Here's a polished version:
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+---
 
-## Available Scripts
+# Multilingual Meeting Transcription  
+**Author: Danish Dubey**
 
-In the project directory, you can run:
+This project transcribes multilingual meeting audio using a combination of FastAPI (backend) and React (frontend). It supports Cantonese and English (You can manually add support for other languages by changing the font used for fpdf), and is optimized for Linux-based systems.
 
-### `npm start`
+---
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## 🛠 Tech Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Frontend**: React (Node.js & npm)
+- **Backend**: FastAPI (Python), with CORS middleware
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## ⚙️ Setup (Linux-based)
 
-### `npm run build`
+### 1. **Install dependencies**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+sudo apt-get update
+sudo apt-get install python3-pip ffmpeg fonts-noto-core
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 2. **Set up Python environment**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install -r backend/requirements.txt
+```
 
-### `npm run eject`
+### 3. **Frontend setup**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+cd frontend
+npm install
+npm start
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+> ⚠️ Note: The frontend is not served with FastAPI. Run it separately using the steps above.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### 4. **Backend setup**
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+cd backend
+python main.py
+```
 
-## Learn More
+> ⚠️ **IMPORTANT**: In `main.py`, configure your Gemini API key:
+```python
+genai.configure(api_key="YOUR_API_KEY")
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 🖋️ Fonts
 
-### Code Splitting
+This project uses `NotoSansTC-Regular.ttf` to display Cantonese and English characters.  
+You have to install it manually from googlefonts website and then move it to the fonts folder using:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+sudo mv ~/Downloads/NotoSansTC-Regular.ttf /usr/share/fonts/truetype/noto/
+```
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## 📊 Benchmarks (i7 CPU, no GPU)
 
-### Making a Progressive Web App
+| Task                              | Audio Length | Time Taken  |
+|-----------------------------------|--------------|-------------|
+| Single Language (Tiny Model)      | 21 min       | ~2.5 min    |
+| Dual Language (Tiny Model)        | 44 min       | ~35 min     |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+> ⏩ *GPU support and CUDA will drastically improve performance. Consider using the `base` model on systems with GPU.*
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🔭 Vision
 
-### Deployment
+Currently, the audio is trimmed into equal 4-minute chunks and processed in parallel using Faster-Whisper. In future iterations:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- The project will shift to **Google Colab** for GPU acceleration.
+- Audio will be segmented using `pyannotate.audio`, based on speaker changes.
+- This will minimize information loss during chunking and allow:
+  - Language separation per speaker
+  - Faster, more accurate transcriptions
+  - Improved speaker identification
