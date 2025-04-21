@@ -7,7 +7,7 @@ This project transcribes multilingual meeting audio using a combination of FastA
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React (Node.js & npm)
+- **Frontend**: React (Node.js & npm) - just for my future reference
 - **Backend**: FastAPI (Python), with CORS middleware (not needed since react app build is run using fastapi)
 - **fastapi_app**: React app build served using FASTAPI(python)
 ---
