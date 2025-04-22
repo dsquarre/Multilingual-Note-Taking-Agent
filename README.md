@@ -43,12 +43,6 @@ genai.configure(api_key="YOUR_API_KEY")
 ```
 
 ---
-
-## 🖋️ Fonts
-
-This project uses `NotoSansTC-Regular.ttf` to display Cantonese and English characters.  
-You have to install it manually from googlefonts website and then move it to the fonts folder using:
-
 ```bash
 sudo mv ~/Downloads/NotoSansTC-Regular.ttf /usr/share/fonts/truetype/noto/
 ```
