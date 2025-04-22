@@ -59,6 +59,7 @@ genai.configure(api_key="YOUR_API_KEY")
 
 Currently, the audio is trimmed into equal 4-minute chunks and processed in parallel using Faster-Whisper. In future iterations:
 
+-Need to add SQL database support or someway of making the website concurrency safe like using tempfile instead of hard coded names for input and output files.
 - The project will shift to **Google Colab** for GPU acceleration.
 - Audio will be segmented using `pyannote.audio`, based on speaker changes instead of equal 4 minutes.
 - This will minimize information loss during chunking and allow:
