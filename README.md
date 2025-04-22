@@ -42,12 +42,7 @@ python main.py
 genai.configure(api_key="YOUR_API_KEY")
 ```
 
----
-```bash
-sudo mv ~/Downloads/NotoSansTC-Regular.ttf /usr/share/fonts/truetype/noto/
-```
 
----
 
 ## 📊 Benchmarks (i7 CPU, no GPU)
 
