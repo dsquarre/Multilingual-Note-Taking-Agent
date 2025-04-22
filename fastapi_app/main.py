@@ -46,13 +46,16 @@ async def startup_event():
     model = WhisperModel("tiny", device="cpu", compute_type="int8", local_files_only=False)
     
     # Configure Gemini API (replace with your API key)
-    genai.configure(api_key="")
+    genai.configure(api_key="AIzaSyBDYZL3Bxqfz50K2PJLg6qol0Y86RHmJzE")
     gemini_model = genai.GenerativeModel('gemini-1.5-flash') #gemini model for your api key
 
 def transcribe(file):
     global model
-    segments, _ = model.transcribe(file)
-    return segments
+    try:
+        segments, _ = model.transcribe(file)
+        return segments
+    except:
+        return None
 
 async def transcribe_chunk(file):
     loop = asyncio.get_running_loop()
@@ -91,7 +94,7 @@ async def get_summary(text):
 
 async def get_highlights(transcript):
     prompt = f"""
-    Given the following transcribed text with timestamps(in seconds), identify and return only the segments containing action items, important points, or tasks. If any other language is detected, then *keep it as it is* and also add your english translation in brackets.
+    Given the following transcribed text with timestamps, identify and return only the segments containing action items, important points, or tasks. If any other language is detected,add your english translation in brackets meanwhile keeping the text there too.
     Include the timestamp and text for each highlighted segment. Correct the grammatical errors if any. If no action items then just return a one line summary of what was said in the audio.
     Dont add any asterisks in your response ,just use spaces and newlines, because your generated content will be directly displayed on screen to user. just use newlines and spaces.
     Transcribed text:
@@ -101,87 +104,99 @@ async def get_highlights(transcript):
 
 @app.post("/upload/")
 async def getAudio(file: UploadFile):
-    global model, highlight, UPLOAD_DIR, gemini_model
+    global UPLOAD_DIR
+    global highlight
     audio = await file.read()
     save_to = UPLOAD_DIR / f"{file.filename}"
     inputfile = None
     with open(save_to,'wb') as f:
         f.write(audio)
-    os.system(f"ffmpeg -i '{save_to}' -vn -ar 16000 -ac 1 -b:a 48k input.mp3 -y")
-    os.remove(save_to)
-    inputfile = "input.mp3"
-    # Transcribe audio
-    chunks = split_audio(inputfile)
-    transcriptions = await asyncio.gather(*[transcribe_chunk(file) for file in chunks])
-
-    text = ""
-    transcript = ""
-    start = 0
-    end = 0
-    offset = 0
-   
-    for segment_list in transcriptions:
-        for segment in segment_list:
-            text += segment.text + "\n"
-            end = offset + segment.end - segment.start
-            start = offset
-            offset = end 
-            hour = start/3600
-            min = (hour - (int)(hour))*60
-            sec = (min - (int)(min))*60
-            timestamp = f"{(int)(hour)}"+"."+f"{(int)(min)}"+"."+f"{(int)(sec)}"
-            hour = end/3600
-            min = (hour - (int)(hour))*60
-            sec = (min - (int)(min))*60
-            timestamp =timestamp +" : "+ f"{(int)(hour)}"+"."+f"{(int)(min)}"+"."+f"{(int)(sec)}"
-            transcript = transcript+f"{timestamp}-{segment.text}\n"
-    for path in chunks:
-        os.remove(path)
+    with open("summary.pdf","w+") as f:
+            f.write("")
     with open("transcript.txt","w") as f:
-        f.write(transcript)
-    
-    summary_resp, highlight_resp = await asyncio.gather(
-    get_summary(text),
-    get_highlights(transcript) )
+            f.write("NOT recieved the file")
+    try:
+        os.system(f"ffmpeg -i '{save_to}' -vn -ar 16000 -ac 1 -b:a 48k input.mp3 -y")
+        os.remove(f"{save_to}")
+        inputfile = "input.mp3"
+        # Transcribe audio
+        chunks = split_audio(inputfile)
+        transcriptions = await asyncio.gather(*[transcribe_chunk(file) for file in chunks])
 
-    summary = summary_resp.text
-    highlight = highlight_resp.text.replace("\n", "<br>")
-    # Create PDF
-    outputfile = UPLOAD_DIR / "summary.pdf"
-    summarize = FPDF()
+        text = ""
+        transcript = ""
+        start = 0
+        end = 0
+        offset = 0
     
-    summarize.add_page()
-    
+        for segment_list in transcriptions:
+            for segment in segment_list:
+                text += segment.text + "\n"
+                end = offset + segment.end - segment.start
+                start = offset
+                offset = end 
+                hour = start/3600
+                min = (hour - (int)(hour))*60
+                sec = (min - (int)(min))*60
+                timestamp = f"{(int)(hour)}"+"."+f"{(int)(min)}"+"."+f"{(int)(sec)}"
+                hour = end/3600
+                min = (hour - (int)(hour))*60
+                sec = (min - (int)(min))*60
+                timestamp =timestamp +" : "+ f"{(int)(hour)}"+"."+f"{(int)(min)}"+"."+f"{(int)(sec)}"
+                transcript = transcript+f"{timestamp}-{segment.text}\n"
+        for path in chunks:
+            os.remove(path)
+        with open("transcript.txt","w") as f:
+            f.write(transcript)
+        
+        summary_resp, highlight_resp = await asyncio.gather(
+        get_summary(text),
+        get_highlights(transcript) )
 
-    summarize.add_font('NotoSans', '', '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf', uni=True)
+        summary = summary_resp.text
+        
+        highlight = highlight_resp.text.replace("\n", "<br>")
+        # Create PDF
+        outputfile = UPLOAD_DIR / "summary.pdf"
+        summarize = FPDF()
+        
+        summarize.add_page()
+        
 
-    summarize.set_font('NotoSans', '', 11)
-    
-    # save summary into pdf
-    summarize.multi_cell(0, 10, f"{summary}")
-    summarize.output(outputfile)
+        summarize.add_font('NotoSans', '', '/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf', uni=True)
 
-    
-    # Clean up
-    os.remove(inputfile)
-    
-    return "transcribed"
+        summarize.set_font('NotoSans', '', 11)
+        
+        # save summary into pdf
+        summarize.multi_cell(0, 10, f"{summary}")
+        summarize.output(outputfile)
+        os.remove(f"{inputfile}")
+        # Clean up
+        return "transcribed"
 
+    except Exception as e:
+        print(e)
+        #os.system(f"mv {save_to} /summary.pdf")
+        
+        highlight += ""
+        return "NOT AUDIO"
+    
+    
 @app.get("/result/summary")
-async def give():
+async def give_summary():
     global UPLOAD_DIR
     path = UPLOAD_DIR / "summary.pdf"
     return FileResponse(path=path, filename="summary.pdf", media_type='application/pdf')
 
 @app.get("/result/transcript")
-async def give():
+async def give_transcript():
     global UPLOAD_DIR
     path = UPLOAD_DIR / "transcript.txt"
     return FileResponse(path=path, filename="transcript.txt", media_type='text/plain')
 
 
 @app.get("/result/highlights")
-async def send():
+async def give_highlights():
     global highlight
     return highlight
 
