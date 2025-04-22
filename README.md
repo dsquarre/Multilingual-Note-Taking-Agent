@@ -71,7 +71,7 @@ sudo mv ~/Downloads/NotoSansTC-Regular.ttf /usr/share/fonts/truetype/noto/
 Currently, the audio is trimmed into equal 4-minute chunks and processed in parallel using Faster-Whisper. In future iterations:
 
 - The project will shift to **Google Colab** for GPU acceleration.
-- Audio will be segmented using `pyannotate.audio`, based on speaker changes instead of equal 4 minutes.
+- Audio will be segmented using `pyannote.audio`, based on speaker changes instead of equal 4 minutes.
 - This will minimize information loss during chunking and allow:
   - Language separation per speaker
   - Faster, more accurate transcriptions
