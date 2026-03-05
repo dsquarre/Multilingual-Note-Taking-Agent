@@ -1,0 +1,7 @@
+backend/__pycache__/
+backend/build/
+frontend/node_modules/
+frontend/package.json
+frontend/package-lock.json
+frontend/public/
+
