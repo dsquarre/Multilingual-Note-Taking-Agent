@@ -4,4 +4,5 @@ frontend/node_modules/
 frontend/package.json
 frontend/package-lock.json
 frontend/public/
-
+frontend/.env/
+frontend/summary.pdf
